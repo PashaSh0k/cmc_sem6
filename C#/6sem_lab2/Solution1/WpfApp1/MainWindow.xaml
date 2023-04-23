@@ -1,0 +1,152 @@
+﻿<Window x:Class="WpfApp1.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp1"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="850">
+    <Window.Resources>
+        <local:InverseBooleanConverter x:Key="InverseBooleanConverter" />
+        <local:RawDataToStringConverter x:Key="RawDataToStringConverter" />
+        <local:SplineDataItemTostringConverter x:Key="SplineDataItemTostringConverter" />
+        <local:TwoValuesConverter x:Key="TwoValuesConverter" />
+        <DataTemplate x:Key="key_template">
+            <TextBlock  Text="{Binding Path = Method.Name}" />
+        </DataTemplate>
+    </Window.Resources>
+    <Window.CommandBindings>
+        <CommandBinding Command="{x:Static local:CustomCommands.RawDataFromControlsCommand}"
+            Executed="RDFCC"
+            CanExecute="CanRDFCC" />
+        <CommandBinding Command="{x:Static local:CustomCommands.RawDataFromFileCommand}"
+            Executed="RDFFC"
+            CanExecute="CanRDFFC" />
+        <CommandBinding Command="ApplicationCommands.Save"
+            Executed="SaveRawData"
+            CanExecute="CanSave" />
+    </Window.CommandBindings>
+    <Grid x:Name="myGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="3" Grid.ColumnSpan="2" Margin="10,10,10,10" Grid.RowSpan="2">
+            <Grid Margin="10,10,10,10">
+                <lvc:CartesianChart Series="{Binding SeriesCollection}" Margin="10,10,10,-400">
+                    <lvc:CartesianChart.AxisX>
+                        <lvc:Axis Title="Point">
+                        </lvc:Axis>
+                    </lvc:CartesianChart.AxisX>
+                    <lvc:CartesianChart.AxisY>
+                        <lvc:Axis Title="Value">
+                        </lvc:Axis>
+                    </lvc:CartesianChart.AxisY>
+                </lvc:CartesianChart>
+            </Grid>
+        </StackPanel>
+        <Menu HorizontalAlignment="Left" Margin="1,1,0,0" Height="18" Width="88" VerticalAlignment="Top">
+            <MenuItem Header="File" >
+                <MenuItem Header="Save" Command="ApplicationCommands.Save"/>
+            </MenuItem>
+            <MenuItem Header="Execute" HorizontalAlignment="Left">
+                <MenuItem Header="RawData from Controls" Command="{x:Static local:CustomCommands.RawDataFromControlsCommand}"/>
+                <MenuItem Header="RawData from File" Command="{x:Static local:CustomCommands.RawDataFromFileCommand}"/>
+            </MenuItem>
+        </Menu>
+        <!--<Button Content="Info" Margin="25" VerticalAlignment="Stretch" Grid.Row="2" Grid.Column ="1" Click="Button_Click"/>-->
+        <StackPanel Margin="10,10,10,0"  VerticalAlignment="Top" Grid.Row="1" Height="42">
+            <TextBlock HorizontalAlignment="Left" Text ="Левый нонец отрезка" Margin="2"  VerticalAlignment="Top" />
+            <TextBox x:Name="textBox_A" HorizontalAlignment="Stretch" Margin="2"  VerticalAlignment="Top" 
+                     Text="{Binding A, ValidatesOnDataErrors=True, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged}" />
+        </StackPanel>
+        <StackPanel Margin="10,0,10,0"  VerticalAlignment="Center" Grid.Row="1" Height="42">
+            <TextBlock HorizontalAlignment="Left" Text ="Правый нонец отрезка" Margin="2"  VerticalAlignment="Top" />
+            <TextBox x:Name="textBox_B" HorizontalAlignment="Stretch" Margin="2"  VerticalAlignment="Top" 
+                     Text="{Binding B, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
+        </StackPanel>
+        <StackPanel Margin="10,0,10,0"  VerticalAlignment="Bottom" Grid.Row="1" Height="42">
+            <TextBlock HorizontalAlignment="Left" Text ="Число узлов сплайна" Margin="2"  VerticalAlignment="Top" />
+            <TextBox x:Name="textBox_NumPoints" HorizontalAlignment="Stretch" Margin="2"  VerticalAlignment="Top" 
+                     Text="{Binding NumPoints, Mode=TwoWay, ValidatesOnDataErrors=True, NotifyOnValidationError=True}"/>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+            <TextBlock HorizontalAlignment="Left" Text ="Тип сетки, на которой заданы данные для интерполяции" Margin="10"  TextWrapping ="Wrap" VerticalAlignment="Top" />
+            <RadioButton x:Name="uniformRadioButton" Content="Равномерная" 
+                         IsChecked="{Binding IsUniformGrid}" GroupName = "rb"/>
+            <RadioButton x:Name="nonUniformRadioButton" Content="Неравномерная"
+                         IsChecked="{Binding IsUniformGrid, Converter={StaticResource InverseBooleanConverter}}"  GroupName = "rb"/>
+        </StackPanel>
+
+        <!--<StackPanel HorizontalAlignment="Stretch" Margin="2"  VerticalAlignment="Center" Grid.Column="1">
+            <TextBlock HorizontalAlignment="Left" Text ="Функция для RawData&#x000A;Привязка к перечислению  " Margin="2"  VerticalAlignment="Top" />
+            <ComboBox HorizontalAlignment="Stretch" Margin="2,5,20,5"  VerticalAlignment="Top" 
+                     Name ="comboBox_Enum" SelectedItem ="{Binding fRawEnum}"/>
+        </StackPanel>-->
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Center" Grid.Row="2" Grid.Column="0" Height="68">
+            <TextBlock HorizontalAlignment="Left" Text ="Функция для RawData&#x000A;Привязка к списку делегатов" Margin="2"  VerticalAlignment="Top" />
+            <ComboBox HorizontalAlignment="Stretch" Margin="2,5,20,5"  VerticalAlignment="Top" 
+                      ItemsSource="{Binding listFRaw}" 
+                      ItemTemplate="{StaticResource key_template}"
+                      SelectedItem="{Binding fRaw}"/>
+        </StackPanel>
+        <StackPanel Margin="2,2,2,0"  VerticalAlignment="Top" Grid.Row="0" Grid.Column="1" Height="86">
+            <TextBlock HorizontalAlignment="Left" Text ="Число узлов сетки, на которых вычисляются значения сплайна" Margin="5"  TextWrapping ="Wrap" VerticalAlignment="Top" />
+            <TextBox x:Name="textBox_NumSplines" Margin="5" Text="{Binding NumSplines, ValidatesOnDataErrors=True, NotifyOnValidationError=True}" />
+        </StackPanel>
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Bottom" Grid.Row="0" Grid.Column="1" Height="86">
+            <TextBlock HorizontalAlignment="Left" Text ="Значения второй производной на концах отрезка" Margin="5"  TextWrapping ="Wrap" VerticalAlignment="Top" />
+            <TextBox x:Name="SecondDerivativeTextBox" Margin="5">
+                <TextBox.Text>
+                    <MultiBinding Converter="{StaticResource TwoValuesConverter}">
+                        <Binding Path="lsd" />
+                        <Binding Path="rsd" />
+                    </MultiBinding>
+                </TextBox.Text>
+            </TextBox>
+        </StackPanel>
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Center" Grid.Row="1" Grid.Column="1" Height="122">
+            <TextBlock HorizontalAlignment="Left" Text ="Вывод информации: узел и значение" Margin="5" TextWrapping="Wrap"  VerticalAlignment="Top" />
+            <ListBox x:Name="ListsRawData" VerticalAlignment="Center" Height ="80" ItemsSource ="{Binding rawData, Converter={StaticResource RawDataToStringConverter}}" />
+        </StackPanel>
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Center" Grid.Row="2" Grid.Column="1" Height="154">
+            <TextBlock HorizontalAlignment="Left" Text ="Вывод информации: узел, значение сплайна, первая производная и вторая производная" Margin="5" TextWrapping="Wrap"  VerticalAlignment="Top" />
+            <ListBox x:Name="ListsSplineData" VerticalAlignment="Center" Height="80" ItemsSource="{Binding Path=splineData.SplineDataItems}" >
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="{Binding Path=Point, StringFormat='{}{0:F2}'}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding Path=SplineValue, StringFormat='{}{0:F2}'}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding Path=FirstDerivative, StringFormat='{}{0:F2}'}" Margin="0,0,5,0"/>
+                            <TextBlock Text="{Binding Path=SecondDerivative, StringFormat='{}{0:F2}'}" Margin="0,0,5,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </StackPanel>
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Center" Grid.Column="2">
+            <TextBlock HorizontalAlignment="Left" Text ="Вывод информации c листбокса:" Margin="10" TextWrapping="Wrap"  VerticalAlignment="Top" />
+            <TextBlock x:Name="SelectedItemTextBlock" HorizontalAlignment="Left" Margin="10" TextWrapping="Wrap" VerticalAlignment="Center" 
+                       Text="{Binding ElementName=ListsSplineData, Path=SelectedItem, Converter={StaticResource SplineDataItemTostringConverter}}" />
+        </StackPanel>
+        <StackPanel Margin="2,0,2,0"  VerticalAlignment="Center" Grid.Row="1" Grid.Column="2" Height="110">
+            <TextBlock HorizontalAlignment="Left" Text ="Значения интеграла от интерполяционного сплайна по всему отрезку:" Margin="10" TextWrapping="Wrap"  VerticalAlignment="Top" />
+            <TextBlock x:Name="integralTextBlock" 
+                Text="{Binding Path=splineData.Integral}" Margin="5"/>
+        </StackPanel>
+        <StackPanel Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="1"  Grid.RowSpan="1" VerticalAlignment="Center">
+            <Button Content="Save" Name="SaveButton" VerticalAlignment="Top" Margin="10" Command="ApplicationCommands.Save"/>
+            <Button Content="RawData from Controls" Name="RawDataFromControlsButton" VerticalAlignment="Center" Margin="10" Command="{x:Static local:CustomCommands.RawDataFromControlsCommand}"/>
+            <Button Content="RawData from File" Name="RawDataFromFileButton" VerticalAlignment="Bottom" Margin="10"  Command="{x:Static local:CustomCommands.RawDataFromFileCommand}"/>
+        </StackPanel>
+    </Grid>
+</Window>
